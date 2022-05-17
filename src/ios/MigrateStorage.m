@@ -89,9 +89,7 @@
 
 - (BOOL) migrateLocalStorage
 {
-    NSLog(@"ket inside migrateLocalStorage!");
     logDebug(@"%@ migrateLocalStorage()", TAG);
-
     BOOL success;
     NSString *originalPath = [self getOriginalPath];
     NSString *targetPath = [self getTargetPath];
@@ -127,8 +125,6 @@
 
     // Only copy data if no existing localstorage data exists yet for wkwebview
     if (![fileManager fileExistsAtPath:targetLocalStorageFilePath]) {
-              NSLog(@"ket  copy data if no existing localstorage data exists yet for wkwebview ooooooooooooooooooooooooooooooooooooo");
-
         logDebug(@"%@ No existing localstorage data found for WKWebView. Migrating data from UIWebView", TAG);
         BOOL success1 = [self moveFile:originalLocalStorageFilePath to:targetLocalStorageFilePath];
         BOOL success2 = [self moveFile:[originalLocalStorageFilePath stringByAppendingString:@"-shm"] to:[targetLocalStorageFilePath stringByAppendingString:@"-shm"]];
@@ -137,9 +133,6 @@
         success = success1 && success2 && success3;
     }
     else {
-                  NSLog(@"ket  found existing target LocalStorage data. Not migrating ooooooooooooooooooooooooooooooooooooo");
-
-
         logDebug(@"%@ found existing target LocalStorage data. Not migrating.", TAG);
         success = NO;
     }
@@ -151,8 +144,6 @@
 
 - (BOOL) migrateIndexedDB
 {
-    NSLog(@"%@ migrateIndexedDB()", TAG);
-    
     NSString *originalPath = [self getOriginalPath];
     NSString *targetPath = [self getTargetPath];
     
@@ -161,28 +152,19 @@
     NSString *original = [[appLibraryFolder stringByAppendingPathComponent:INDEXDB_DIRPATH] stringByAppendingPathComponent:originalPath];
     NSString *target = [[appLibraryFolder stringByAppendingPathComponent:INDEXDB_DIRPATH] stringByAppendingPathComponent:targetPath];
     
-    NSLog(@"%@ IDB original %@", TAG, original);
-    NSLog(@"%@ IDB target %@", TAG, target);
-    
     if (![[NSFileManager defaultManager] fileExistsAtPath:target]) {
-        NSLog(@"%@ No existing IDB data found for WKWebView. Migrating data from UIWebView", TAG);
         BOOL success = [self moveFile:original to:target];
-        NSLog(@"%@ copy status IDB %d", TAG, success);
         return success;
     }
     else {
-        NSLog(@"%@ found IDB data. Not migrating", TAG);
         return NO;
     }
 }
 
 - (void)pluginInitialize
 {
-     NSLog(@"ket  pluginInitialize ooooooooooooooooooooooooooooooooooooo");
     logDebug(@"%@ pluginInitialize()", TAG);
-
     NSDictionary *cdvSettings = self.commandDelegate.settings;
-
     self.originalPortNumber = [cdvSettings cordovaSettingForKey:SETTING_ORIGINAL_PORT_NUMBER];
     if([self.originalPortNumber length] == 0) {
         self.originalPortNumber = DEFAULT_ORIGINAL_PORT_NUMBER;
@@ -215,8 +197,6 @@
 
     [self migrateLocalStorage];
     [self migrateIndexedDB];
-
-    NSLog(@"ket  end pluginInitialize ooooooooooooooooooooooooooooooooooooo");
 
     logDebug(@"%@ end pluginInitialize()", TAG);
 }
