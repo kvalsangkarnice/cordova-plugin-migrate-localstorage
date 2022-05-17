@@ -15,48 +15,48 @@ cordova plugin add cordova-plugin-ionic-migrate-localstorage
 
 ## Notes
 
-- LocalStorage files are only copied over once and only if no LocalStorage data exists for ionic's `WKWebView`
-yet. This means that if you've run your app with `WKWebView` before this plugin will likely not work.
-To test if data is migrated over correctly:
-    1. Delete the app from your emulator or device
-    2. Remove `cordova-plugin-ionic-migrate-localstorage`
-    
-    ```
-    cordova plugin rm cordova-plugin-ionic-migrate-localstorage
-    ```
-    3. Remove the `cordova-plugin-ionic-webview`
-    
-    ```
-    cordova plugin rm cordova-plugin-ionic-webview
-    ```
+This work is forked from https://github.com/pointmanhq/cordova-plugin-ionic-migrate-ios-storage, which migrates IndexedDB, LocalStorage, and WebSQL from cordova's default UIWebView to cordova-plugin-ionic-webview. We needed to migrate not from the default UIWebView, but from cordova-plugin-ionic-webview@1.X.X to cordova-plugin-ionic-webview@4.X.X, and only localStorage was needed, so IndexedDB and WebSQL support were removed and the migration locations were made configurable. Theoretically, this plugin could also be used to migrate from UIWebView to cordova-plugin-ionic-migrate-ios-storage. The following settings are configurable (defaults listed): This work is forked from https://github.com/pointmanhq/cordova-plugin-ionic-migrate-ios-storage, which migrates IndexedDB, LocalStorage, and WebSQL from cordova's default UIWebView to cordova-plugin-ionic-webview. We needed to migrate not from the default UIWebView, but from cordova-plugin-ionic-webview@1.X.X to cordova-plugin-ionic-webview@4.X.X, and only localStorage was needed, so IndexedDB and WebSQL support were removed and the migration locations were made configurable. Theoretically, this plugin could also be used to migrate from UIWebView to cordova-plugin-ionic-migrate-ios-storage. The following settings are configurable (defaults listed):
 
-    4. Run your app and store some data in LocalStorage
-    5. Add both plugins back
-   
-     ```
-    cordova plugin add cordova-plugin-ionic-webview@1.1.16
-    ```
-    
-    ```
-    cordova plugin add cordova-plugin-ionic-migrate-localstorage
-    ```
-   
-    6. Run your app again. Your data should still be there!
+#define DEFAULT_TARGET_HOSTNAME @"localhost" #define DEFAULT_TARGET_SCHEME @"ionic" #define DEFAULT_TARGET_PORT_NUMBER @"0"
 
-- Once the data is copied over, it is not being synced back to `UIWebView` so any changes done in
-`WKWebView` will not persist should you ever move back to `UIWebView`. If you have a problem with this,
-let us know in the issues section!
+#define DEFAULT_ORIGINAL_HOSTNAME @"localhost" #define DEFAULT_ORIGINAL_SCHEME @"http" #define DEFAULT_ORIGINAL_PORT_NUMBER @"8080"
 
-## Background
+<!-- cordova-plugin-ionic-webview@4.x.x defaults to serving from http://localhost on Android and ionic://localhost on iOS -->
+<preference name="Scheme" value="http" />
+<preference name="iosScheme" value="ionic" />
+<preference name="Hostname" value="localhost" />
+<preference name="WKPort" value="" />
 
-One of the drawbacks of migrating Cordova apps to `WKWebView` is that LocalStorage data does
-not persist between the two. Unfortunately,
-[cordova-plugin-ionic-webview](https://github.com/ionic-team/cordova-plugin-ionic-webview)
-does not offer a solution for this out of the box.
+<!-- cordova-plugin-ionic-webview@1.x.x defaults to serving from http://localhost:8080 -->
+<preference name="MIGRATE_STORAGE_ORIGINAL_SCHEME" value="http" />
+<preference name="MIGRATE_STORAGE_ORIGINAL_HOSTNAME" value="localhost" />
+<preference name="MIGRATE_STORAGE_ORIGINAL_PORT_NUMBER" value="8080" />
+Testing
+To test this, you will have to do the following:
 
-## Disclaimer
-This plugin has only been tested with cordova-plugin-ionic-webview v1.1.16, so use at your own risk.
+Delete the app from your device
+Remove the webview and migrate plugins from your app:
+cordova plugin rm --save cordova-plugin-ionic-webview @kassamina/cordova-plugin-ionic-migrate-ios-storage
+Build your app and run it. Store something in localStorage, WebSQL and IndexedDB.
+Add the plugins back:
+cordova plugin add --save cordova-plugin-ionic-webview@4.1.3 cordova-plugin-ionic-migrate-ios-storage@0.3.6
+Build your app and run it. The stored data must all exist!
+Caveats / Warnings / Gotchas
+Until the plugin reaches v.1.0.0, breaking changes will be introduced in every minor version upgrade! Use one of the tags listed here if you want to lock it down to a specific changeset.
+This has only been tested with ios, migrating from cordova-plugin-ionic-webview@1.2.1 to cordova-plugin-ionic-webview@4.1.3!
+Currently, this plugin does not work on simulators. PRs welcome!
+This copy is uni-directional, from old webview to new webview. It does not go the other way around. So essentially, this plugin will run only once!
+Thanks
+Most of the code in this plugin was either adapted or inspired from a plethora of other sources. Creating this plugin would not have been possible if not for these repositories and their contributors:
 
-## Credits
-
-This plugin is a fork of a [fork](https://github.com/kas84/cordova-plugin-migrate-localstorage) of a [copy](https://github.com/MaKleSoft/cordova-plugin-migrate-localstorage) of the [Telerik WKWebView source](https://github.com/Telerik-Verified-Plugins/WKWebView/blob/master/src/ios/MyMainViewController.m), so all props go to someone else. #open-source
+https://github.com/styleseat/cordova-plugin-ionic-migrate-storage
+https://github.com/pointmanhq/cordova-plugin-ionic-migrate-storage
+https://github.com/jairemix/cordova-plugin-migrate-localstorage/
+https://github.com/MaKleSoft/cordova-plugin-migrate-localstorage
+https://github.com/Telerik-Verified-Plugins/WKWebView/
+https://github.com/ccgus/fmdb
+https://github.com/jacek-marchwicki/leveldb-jni
+TODO
+Pull out debug flags to make them platform specific and not rely on booleans in the code.
+Add some unit testing.
+Open source stuff - github issue templates, CONTRIBUTING doc, Local development doc etc.
